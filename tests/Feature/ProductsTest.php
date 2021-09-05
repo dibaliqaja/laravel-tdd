@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Product;
+use App\Models\User;
 use Database\Factories\ProductFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -18,7 +19,14 @@ class ProductsTest extends TestCase
      */
     public function test_product_page_contains_empty_products_table()
     {
-        $response = $this->get('/product');
+        // create a user
+        $user = User::factory()->create([
+            'email' => 'admin@admin.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        // go to homepage
+        $response = $this->actingAs($user)->get('/product');
 
         $response->assertStatus(200);
         $response->assertSee('No products found.');
@@ -36,7 +44,14 @@ class ProductsTest extends TestCase
             'price' => 5000
         ]);
 
-        $response = $this->get('/product');
+        // create a user
+        $user = User::factory()->create([
+            'email' => 'admin@admin.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        // go to homepage
+        $response = $this->actingAs($user)->get('/product');
 
         $response->assertStatus(200);
         $response->assertDontSee('No products found.');        
@@ -58,7 +73,14 @@ class ProductsTest extends TestCase
         //     ]);
         // }
 
-        $response = $this->get('/product');
+        // create a user
+        $user = User::factory()->create([
+            'email' => 'admin@admin.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        // go to homepage
+        $response = $this->actingAs($user)->get('/product');
 
         $response->assertDontSee($products->last()->name); 
     }
