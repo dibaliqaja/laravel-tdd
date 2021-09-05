@@ -31,14 +31,16 @@ class ProductsTest extends TestCase
     public function test_product_page_contains_non_empty_products_table()
     {
         $product = Product::create([
-            'name' => 'Bottle',
+            'name' => 'Bottle 1000',
             'price' => 5000
         ]);
 
         $response = $this->get('/product');
 
         $response->assertStatus(200);
-        $response->assertDontSee('No products found.');
-        $response->assertSee($product->name);
+        $response->assertDontSee('No products found.');        
+        $view_products = $response->viewData('products');
+        // dd($view_products);
+        $this->assertEquals($product->name, $view_products->first()->name);
     }
 }
