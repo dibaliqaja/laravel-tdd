@@ -12,6 +12,18 @@ class ProductsTest extends TestCase
 {
     use RefreshDatabase;
 
+    private $user;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->user = User::factory()->create([
+            'email' => 'admin@admin.com',
+            'password' => bcrypt('password'),
+        ]);
+    }
+
     /**
      * product page contains empty
      *
@@ -19,14 +31,8 @@ class ProductsTest extends TestCase
      */
     public function test_product_page_contains_empty_products_table()
     {
-        // create a user
-        $user = User::factory()->create([
-            'email' => 'admin@admin.com',
-            'password' => bcrypt('password'),
-        ]);
-
         // go to homepage
-        $response = $this->actingAs($user)->get('/product');
+        $response = $this->actingAs($this->user)->get('/product');
 
         $response->assertStatus(200);
         $response->assertSee('No products found.');
@@ -44,14 +50,8 @@ class ProductsTest extends TestCase
             'price' => 5000
         ]);
 
-        // create a user
-        $user = User::factory()->create([
-            'email' => 'admin@admin.com',
-            'password' => bcrypt('password'),
-        ]);
-
         // go to homepage
-        $response = $this->actingAs($user)->get('/product');
+        $response = $this->actingAs($this->user)->get('/product');
 
         $response->assertStatus(200);
         $response->assertDontSee('No products found.');        
@@ -73,14 +73,8 @@ class ProductsTest extends TestCase
         //     ]);
         // }
 
-        // create a user
-        $user = User::factory()->create([
-            'email' => 'admin@admin.com',
-            'password' => bcrypt('password'),
-        ]);
-
         // go to homepage
-        $response = $this->actingAs($user)->get('/product');
+        $response = $this->actingAs($this->user)->get('/product');
 
         $response->assertDontSee($products->last()->name); 
     }
