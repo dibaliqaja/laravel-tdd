@@ -116,9 +116,31 @@ class ProductsTest extends TestCase
     public function test_non_admin_cannot_access_products_create_page()
     {
         $this->create_user();
-        
+
         $response = $this->actingAs($this->user)->get('products/create');
         
         $response->assertStatus(403);
+    }
+
+    public function test_store_product_exists_in_database()
+    {
+        $this->create_user(1);
+
+        $response = $this->actingAs($this->user)->post('products', [
+            'name' => 'New product',
+            'price' => 99.99,
+        ]);
+
+        $response->assertRedirect('products');
+
+        $this->assertDatabaseHas('products', [
+            'name' => 'New product',
+            'price' => 99.99,
+        ]);
+
+        $product = Product::orderBy('id', 'desc')->first();
+        
+        $this->assertEquals('New product', $product->name);
+        $this->assertEquals(99.99, $product->price);
     }
 }
