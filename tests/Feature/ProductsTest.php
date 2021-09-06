@@ -14,13 +14,12 @@ class ProductsTest extends TestCase
 
     private $user;
 
-    public function setUp(): void
+    private function create_user($is_admin = 0)
     {
-        parent::setUp();
-
         $this->user = User::factory()->create([
-            'email' => 'admin@admin.com',
+            'email' => ($is_admin) ? 'admin@admin.com' : 'user@user.com',
             'password' => bcrypt('password'),
+            'is_admin' => $is_admin,
         ]);
     }
 
@@ -31,8 +30,10 @@ class ProductsTest extends TestCase
      */
     public function test_product_page_contains_empty_products_table()
     {
+        $this->create_user();
+
         // go to homepage
-        $response = $this->actingAs($this->user)->get('/product');
+        $response = $this->actingAs($this->user)->get('/products');
 
         $response->assertStatus(200);
         $response->assertSee('No products found.');
@@ -50,8 +51,10 @@ class ProductsTest extends TestCase
             'price' => 5000
         ]);
 
+        $this->create_user();
+
         // go to homepage
-        $response = $this->actingAs($this->user)->get('/product');
+        $response = $this->actingAs($this->user)->get('/products');
 
         $response->assertStatus(200);
         $response->assertDontSee('No products found.');        
@@ -73,9 +76,49 @@ class ProductsTest extends TestCase
         //     ]);
         // }
 
+        $this->create_user();
+
         // go to homepage
-        $response = $this->actingAs($this->user)->get('/product');
+        $response = $this->actingAs($this->user)->get('/products');
 
         $response->assertDontSee($products->last()->name); 
+    }
+
+    public function test_admin_can_see_product_create_button()
+    {
+        $this->create_user(1);
+
+        $response = $this->actingAs($this->user)->get('products');
+
+        $response->assertStatus(200);
+        $response->assertSee('Add new product');
+    }
+
+    public function test_non_admin_cannot_see_product_create_button()
+    {
+        $this->create_user();
+
+        $response = $this->actingAs($this->user)->get('products');
+
+        $response->assertStatus(200);
+        $response->assertDontSee('Add new product');
+    }
+
+    public function test_admin_can_access_products_create_page()
+    {
+        $this->create_user(1);
+
+        $response = $this->actingAs($this->user)->get('products/create');
+        
+        $response->assertStatus(200);
+    }
+
+    public function test_non_admin_cannot_access_products_create_page()
+    {
+        $this->create_user();
+        
+        $response = $this->actingAs($this->user)->get('products/create');
+        
+        $response->assertStatus(403);
     }
 }

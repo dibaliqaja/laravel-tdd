@@ -40,7 +40,7 @@ class AuthTest extends TestCase
         ]);
 
         // go to homepage
-        $response = $this->actingAs($user)->get('/product');
+        $response = $this->actingAs($user)->get('/products');
 
         // assert status 200
         $response->assertStatus(200);
@@ -49,7 +49,7 @@ class AuthTest extends TestCase
     public function test_authenticated_user_cannot_access_products_table()
     {
         // go to homepage
-        $response = $this->get('/product');
+        $response = $this->get('/products');
 
         // assert status 302
         $response->assertStatus(302);
