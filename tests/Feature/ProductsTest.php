@@ -181,4 +181,16 @@ class ProductsTest extends TestCase
 
         $response->assertStatus(422);
     }
+
+    public function test_delete_product_no_longer_exists_in_database()
+    {
+        $this->create_user(1);
+
+        $product = Product::factory()->create();
+        $this->assertEquals(1, Product::count());
+
+        $response = $this->actingAs($this->user)->delete('products/' . $product->id);
+        $response->assertStatus(302);
+        $this->assertEquals(0, Product::count());
+    }
 }
