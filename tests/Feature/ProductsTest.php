@@ -4,8 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\Product;
 use App\Models\User;
-use Database\Factories\ProductFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ProductsTest extends TestCase
@@ -192,5 +193,20 @@ class ProductsTest extends TestCase
         $response = $this->actingAs($this->user)->delete('products/' . $product->id);
         $response->assertStatus(302);
         $this->assertEquals(0, Product::count());
+    }
+
+    public function test_create_product_file_upload()
+    {
+        $this->create_user(1);
+
+        Storage::fake('local');
+
+        $this->actingAs($this->user)->post('products', [
+            'name' => 'Product with photo',
+            'price' => 99,
+            'photo' => UploadedFile::fake()->image('logo.jpg')
+        ]);
+
+        Storage::disk('local')->assertExists('logos/logo.jpg');
     }
 }
